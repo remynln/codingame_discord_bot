@@ -1,4 +1,6 @@
 import asyncio
+from datetime import timedelta
+from os import name
 import codingame
 import discord
 import json
@@ -103,5 +105,26 @@ async def next(ctx):
         embed.add_field(name=player.pseudo, value="https://www.codingame.com/profile/" + player.public_handle)
     embed.set_footer(text="Time before start: " + str(coc.time_before_start))
     await ctx.send(embed=embed)
+
+#@bot.command(name="leaderboard", description="get your leaderboard")
+#async def leaderboard(ctx, arg=None):
+#    if not arg:
+#        file = open("./config/db.json", "r+")
+#        file_data = json.load(file)
+#        if not file_data[str(ctx.author.id)]["user"]:
+#            await ctx.send("This command required an argument or to be linked")
+#            return(84)
+#        else:
+#            codingamer = client.get_codingamer(file_data[str(ctx.author.id)]["user"])
+#    else:
+#        codingamer = client.get_codingamer(arg)
+#    page = codingamer.rank/100
+#    place = codingamer.rank % 100
+#    global_leaderboard = client.get_global_leaderboard(page=page + 1)
+#    print(global_leaderboard.users[place].pseudo)
+#    embed=discord.Embed(title="Leaderboard", color=Color.blurple())
+#    for i in range(-2, 3):
+#        embed.add_field(name=str(codingamer.rank + i) + " ème " + str(global_leaderboard.users[place + i].pseudo), value="[See profil](https://www.codingame.com/profile/" + global_leaderboard.users[place + i].public_handle + ")", inline=False)
+#    await ctx.send(embed=embed)
 
 bot.run(config["token"])
