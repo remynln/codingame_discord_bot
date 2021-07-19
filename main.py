@@ -102,7 +102,7 @@ async def next(ctx):
     embed = discord.Embed(title="Click to join", url=coc.join_url, description="**Players online:**", color=Color.blue())
     embed.set_thumbnail(url="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,f_auto,q_auto:eco,dpr_1/v1410916443/e1aka8oyy6vnsbrt8ogw.png")
     for player in coc.players:
-        embed.add_field(name=player.pseudo, value="https://www.codingame.com/profile/" + player.public_handle)
+        embed.add_field(name=player.pseudo, value="[See profil](https://www.codingame.com/profile/" + player.public_handle + ")")
     embed.set_footer(text="Time before start: " + str(coc.time_before_start))
     await ctx.send(embed=embed)
 
