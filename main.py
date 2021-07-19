@@ -29,7 +29,7 @@ async def on_ready():
 @bot.command(name="profil")
 async def profil(ctx, arg):
     codingamer = client.get_codingamer(arg)
-    embed = discord.Embed(title=codingamer.pseudo, url="https://www.codingame.com/profile/" + codingamer.public_handle, color=Color.orange)
+    embed = discord.Embed(title=codingamer.pseudo, url="https://www.codingame.com/profile/" + codingamer.public_handle, color=Color.orange())
     embed.add_field(name="Clash Of Code Global rank:", value=str(codingamer.get_clash_of_code_rank()) + " ème", inline=True)
     embed.add_field(name="Global Rank", value=str(codingamer.rank) + " ème", inline=True)
     embed.add_field(name="Level:", value=str(codingamer.level), inline=False)
@@ -40,7 +40,7 @@ async def profil(ctx, arg):
 @bot.command(name="game")
 async def game(ctx):
     coc = client.get_pending_clash_of_code()
-    embed = discord.Embed(title="Click to join", url=coc.join_url, description="**Players online:**", color=Color.blue)
+    embed = discord.Embed(title="Click to join", url=coc.join_url, description="**Players online:**", color=Color.blue())
     embed.set_thumbnail(url="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,f_auto,q_auto:eco,dpr_1/v1410916443/e1aka8oyy6vnsbrt8ogw.png")
     for player in coc.players:
         embed.add_field(name=player.pseudo, value="https://www.codingame.com/profile/" + player.public_handle)
