@@ -1,9 +1,6 @@
 import asyncio
-from asyncio.tasks import wait
-from datetime import date
 import codingame
 import discord
-import random
 import json
 from discord.colour import Color
 from discord.ext import commands
@@ -22,13 +19,9 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_ready():
     print('Le bot est pret')
-    presences = ["!game to join a game", "!profile to get a profile", "coding ..."]
-    while not bot.is_closed:
-        presence = random.choice(presences)
-        await bot.change_presence(activity=presence)
-        await asyncio.sleep(6)
+    await bot.change_presence(activity=discord.Game(name="!help"))
 
-@bot.command(name="unlink")
+@bot.command(name="unlink", description="Unlink you from your actual profil")
 async def unlink(ctx):
     with open("./config/db.json", "r+") as file:
         file_data = json.load(file)
@@ -44,7 +37,7 @@ async def unlink(ctx):
         with open("./config/db.json", "w+") as fp:
             json.dump(file_data, fp, sort_keys=True, indent=4)
 
-@bot.command(name="link")
+@bot.command(name="link", description="link you to a codingame profil")
 async def link(ctx, arg):
     with open("./config/db.json", "r+") as file:
         file_data = json.load(file)
@@ -60,7 +53,7 @@ async def link(ctx, arg):
         with open("./config/db.json", "w+") as fp:
             json.dump(file_data, fp, sort_keys=True, indent=4)
 
-@bot.command(name="profil")
+@bot.command(name="profil", description="See an user profil from codingame")
 async def profil(ctx, arg=None):
     if not arg:
         file = open("./config/db.json", "r+")
@@ -79,7 +72,7 @@ async def profil(ctx, arg=None):
     embed.set_thumbnail(url=codingamer.avatar_url)
     await ctx.send(embed=embed)
 
-@bot.command(name="game")
+@bot.command(name="game", description="Join the actual game of  clash of code")
 async def game(ctx):
     coc = client.get_pending_clash_of_code()
     embed = discord.Embed(title="Click to join", url=coc.join_url, description="**Players online:**", color=Color.blue())
@@ -89,7 +82,7 @@ async def game(ctx):
     embed.set_footer(text="Time before start: " + str(coc.time_before_start.seconds) + "s")
     await ctx.send(embed=embed)
 
-@bot.command(name="next")
+@bot.command(name="next", description="Join the next game of clash of code")
 async def next(ctx):
     coc = client.get_pending_clash_of_code()
     next_battle = coc.time_before_start.seconds
