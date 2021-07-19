@@ -44,6 +44,26 @@ async def game(ctx):
     embed.set_thumbnail(url="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,f_auto,q_auto:eco,dpr_1/v1410916443/e1aka8oyy6vnsbrt8ogw.png")
     for player in coc.players:
         embed.add_field(name=player.pseudo, value="https://www.codingame.com/profile/" + player.public_handle)
+    embed.set_footer(text="Time before start: " + str(coc.time_before_start.seconds) + "s")
+    await ctx.send(embed=embed)
+
+@bot.command(name="next")
+async def next(ctx):
+    coc = client.get_pending_clash_of_code()
+    next_battle = coc.time_before_start.seconds
+    await ctx.send("Next battle in " + str(next_battle) + "s ~")
+    while next_battle > 5:
+        coc = client.get_pending_clash_of_code()
+        next_battle = coc.time_before_start.seconds
+        print(next_battle)
+        await asyncio.sleep(5)
+    await asyncio.sleep(next_battle + 5)
+    await ctx.send(ctx.author.mention)
+    coc = client.get_pending_clash_of_code()
+    embed = discord.Embed(title="Click to join", url=coc.join_url, description="**Players online:**", color=Color.blue())
+    embed.set_thumbnail(url="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,f_auto,q_auto:eco,dpr_1/v1410916443/e1aka8oyy6vnsbrt8ogw.png")
+    for player in coc.players:
+        embed.add_field(name=player.pseudo, value="https://www.codingame.com/profile/" + player.public_handle)
     embed.set_footer(text="Time before start: " + str(coc.time_before_start))
     await ctx.send(embed=embed)
 
