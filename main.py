@@ -12,7 +12,6 @@ with open("./config/config.json", "r") as cjson:
 bot = commands.Bot(command_prefix=config["prefix"])
 client = codingame.Client()
 
-
 @bot.event
 async def on_command_error(ctx, error):
     await ctx.send(f"An error occured: {str(error)}")
@@ -36,14 +35,13 @@ async def profil(ctx, arg):
     embed.set_thumbnail(url=codingamer.avatar_url)
     await ctx.send(embed=embed)
 
-
 @bot.command(name="game")
 async def game(ctx):
     coc = client.get_pending_clash_of_code()
     embed = discord.Embed(title="Click to join", url=coc.join_url, description="**Players online:**", color=Color.blue())
     embed.set_thumbnail(url="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,f_auto,q_auto:eco,dpr_1/v1410916443/e1aka8oyy6vnsbrt8ogw.png")
     for player in coc.players:
-        embed.add_field(name=player.pseudo, value="https://www.codingame.com/profile/" + player.public_handle)
+        embed.add_field(name=player.pseudo, value="[See profil](https://www.codingame.com/profile/" + player.public_handle + ")")
     embed.set_footer(text="Time before start: " + str(coc.time_before_start.seconds) + "s")
     await ctx.send(embed=embed)
 
@@ -60,6 +58,9 @@ async def next(ctx):
     await asyncio.sleep(next_battle + 5)
     await ctx.send(ctx.author.mention)
     coc = client.get_pending_clash_of_code()
+    while not coc:
+        coc = client.get_pending_clash_of_code()
+        asyncio.sleep(1)
     embed = discord.Embed(title="Click to join", url=coc.join_url, description="**Players online:**", color=Color.blue())
     embed.set_thumbnail(url="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,f_auto,q_auto:eco,dpr_1/v1410916443/e1aka8oyy6vnsbrt8ogw.png")
     for player in coc.players:
