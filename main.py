@@ -3,11 +3,15 @@ from asyncio.tasks import wait
 import codingame
 import discord
 import random
+import json
 from discord.colour import Color
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix="!")
+with open("./config/config.json", "r") as cjson:
+    config = json.load(cjson)
+bot = commands.Bot(command_prefix=config["prefix"])
 client = codingame.Client()
+
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -22,10 +26,13 @@ async def on_ready():
         await bot.change_presence(activity=discord.Game(name=presence))
         await asyncio.sleep(6)
 
-@bot.command(name="profile")
-async def profile(ctx, arg):
+@bot.command(name="profil")
+async def profil(ctx, arg):
     codingamer = client.get_codingamer(arg)
     embed = discord.Embed(title=codingamer.pseudo, url="https://www.codingame.com/profile/" + codingamer.public_handle, color=0xFF5733)
+    embed.add_field(name="Clash Of Code Global rank:", value=str(codingamer.get_clash_of_code_rank()) + " ème", inline=True)
+    embed.add_field(name="Global Rank", value=str(codingamer.rank) + " ème", inline=True)
+    embed.add_field(name="Level:", value=str(codingamer.level), inline=False)
     embed.set_thumbnail(url=codingamer.avatar_url)
     await ctx.send(embed=embed)
 
@@ -40,4 +47,4 @@ async def game(ctx):
     embed.set_footer(text="Time before start: " + str(coc.time_before_start))
     await ctx.send(embed=embed)
 
-bot.run("/")
+bot.run(config["token"])
