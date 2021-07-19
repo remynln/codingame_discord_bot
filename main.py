@@ -90,7 +90,6 @@ async def next(ctx):
     while next_battle > 5:
         coc = client.get_pending_clash_of_code()
         next_battle = coc.time_before_start.seconds
-        print(next_battle)
         await asyncio.sleep(5)
     await asyncio.sleep(next_battle + 5)
     await ctx.send(ctx.author.mention)
