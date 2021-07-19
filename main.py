@@ -1,5 +1,6 @@
 import asyncio
 from asyncio.tasks import wait
+from datetime import date
 import codingame
 import discord
 import random
@@ -9,6 +10,8 @@ from discord.ext import commands
 
 with open("./config/config.json", "r") as cjson:
     config = json.load(cjson)
+with open("./config/db.json", "r") as dbjson:
+    db = json.load(dbjson)
 bot = commands.Bot(command_prefix=config["prefix"])
 client = codingame.Client()
 
@@ -22,12 +25,53 @@ async def on_ready():
     presences = ["!game to join a game", "!profile to get a profile", "coding ..."]
     while not bot.is_closed:
         presence = random.choice(presences)
-        await bot.change_presence(activity=discord.Game(name=presence))
+        await bot.change_presence(activity=presence)
         await asyncio.sleep(6)
 
+@bot.command(name="unlink")
+async def unlink(ctx):
+    with open("./config/db.json", "r+") as file:
+        file_data = json.load(file)
+        try:
+            if not file_data[str(ctx.author.id)]["user"]:
+                await ctx.send("You are not linked, use !link to link your codingame profile")
+            else:
+                tmp = file_data[str(ctx.author.id)]["user"]
+                file_data[str(ctx.author.id)]["user"] = ""
+                await ctx.send("Succesfully unlinked from " + tmp)
+        except KeyError:
+            await ctx.send("You are not linked, use !link to link your codingame profile")
+        with open("./config/db.json", "w+") as fp:
+            json.dump(file_data, fp, sort_keys=True, indent=4)
+
+@bot.command(name="link")
+async def link(ctx, arg):
+    with open("./config/db.json", "r+") as file:
+        file_data = json.load(file)
+        try:
+            if not file_data[str(ctx.author.id)]["user"]:
+                file_data[str(ctx.author.id)]["user"] = arg
+                await ctx.send("Succesfully linked to " + arg)
+            else:
+                await ctx.send("You are already linked, use !unlink to reset your link")
+        except KeyError:
+            file_data[str(ctx.author.id)] = {"user": arg}
+            await ctx.send("Succesfully linked to " + arg)
+        with open("./config/db.json", "w+") as fp:
+            json.dump(file_data, fp, sort_keys=True, indent=4)
+
 @bot.command(name="profil")
-async def profil(ctx, arg):
-    codingamer = client.get_codingamer(arg)
+async def profil(ctx, arg=None):
+    if not arg:
+        file = open("./config/db.json", "r+")
+        file_data = json.load(file)
+        if not file_data[str(ctx.author.id)]["user"]:
+            await ctx.send("This command required an argument or to be linked")
+            return(84)
+        else:
+            codingamer = client.get_codingamer(file_data[str(ctx.author.id)]["user"])
+    else:
+        codingamer = client.get_codingamer(arg)
     embed = discord.Embed(title=codingamer.pseudo, url="https://www.codingame.com/profile/" + codingamer.public_handle, color=Color.orange())
     embed.add_field(name="Clash Of Code Global rank:", value=str(codingamer.get_clash_of_code_rank()) + " ème", inline=True)
     embed.add_field(name="Global Rank", value=str(codingamer.rank) + " ème", inline=True)
