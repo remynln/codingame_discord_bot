@@ -21,7 +21,7 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_ready():
     print('Le bot est pret')
-    await bot.change_presence(activity=discord.Game(name="!help"))
+    await bot.change_presence(activity=discord.Game(name=config["prefix"] + "help"))
 
 @bot.command(name="unlink", description="Unlink you from your actual profil")
 async def unlink(ctx):
