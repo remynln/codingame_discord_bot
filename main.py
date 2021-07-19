@@ -125,6 +125,6 @@ async def next(ctx):
 #    embed=discord.Embed(title="Leaderboard", color=Color.blurple())
 #    for i in range(-2, 3):
 #        embed.add_field(name=str(codingamer.rank + i) + " ème " + str(global_leaderboard.users[place + i].pseudo), value="[See profil](https://www.codingame.com/profile/" + global_leaderboard.users[place + i].public_handle + ")", inline=False)
-#    await ctx.send(embed=embed)
+#    await ctx.send(embed=embed) 
 
 bot.run(config["token"])
