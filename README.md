@@ -20,3 +20,15 @@ After that simply run the bot
 ``python3 main.py``
 
 The bot is self hosted invite him with this [link](https://discord.com/api/oauth2/authorize?client_id=866601410237038592&permissions=19456&scope=bot)
+
+## Commands
+
+| Commands      | Actions                                                   |
+| :------------:|:---------------------------------------------------------:|
+| help          |   Display help message (gonna update him soon)            |
+| profil        | display user profile and some stats                       |
+| link          | link your codingame profile to your discord account       |
+| unlink        | unlink your codingame profile to your discord account     |
+| game          | send link of the actual game of clash of code             |
+| next          | mention you when the next battle of clash of code start   |
+| leaderboard   | :x: in a future update                                    |
