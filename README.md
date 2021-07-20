@@ -32,3 +32,8 @@ The bot is self hosted invite him with this [link](https://discord.com/api/oauth
 | game          | send link of the actual game of clash of code             |
 | next          | mention you when the next battle of clash of code start   |
 | leaderboard   | :x: in a future update                                    |
+
+## Made with
+
+[<img src="https://avatars.githubusercontent.com/u/36101493?s=200&v=4" width="50"/>](https://discordpy.readthedocs.io/en/stable/)
+[<img src="https://avatars.githubusercontent.com/u/6946974?s=200&v=4" width="50"/>](https://codingame.readthedocs.io/en/latest/)
