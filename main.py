@@ -83,7 +83,7 @@ async def game(ctx):
     await ctx.send(embed=embed)
 
 @bot.command(name="next", description="Join the next game of clash of code")
-async def next(ctx):
+async def nextgame(ctx):
     coc = client.get_pending_clash_of_code()
     next_battle = coc.time_before_start.seconds
     await ctx.send("Next battle in " + str(next_battle) + "s ~")
