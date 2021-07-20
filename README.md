@@ -1,13 +1,13 @@
 # Discord Bot Codingame
 
-## Install:
+## Install
 ``git clone https://github.com/Waz0x/codingame_discord_bot.git``
 
 ``pip3 install -r requirements.txt``
 
 Go to [discord developpers portal](https://discord.com/developers/applications) create an app and setup app as bot, copy token and paste in config file.
 
-```
+```json
 {
     "prefix": "!",
     "token": "paste here"

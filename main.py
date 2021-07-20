@@ -1,6 +1,4 @@
 import asyncio
-from datetime import timedelta
-from os import name
 import codingame
 import discord
 import json
