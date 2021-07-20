@@ -1,4 +1,2 @@
-asyncio
 codingame
 discord
-json
