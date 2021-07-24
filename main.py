@@ -1,137 +1,98 @@
 import asyncio
 import codingame
 import discord
-import json
 from discord.colour import Color
 from discord.ext import commands
+import config
+from db import db
 
-with open("./config/config.json", "r") as cjson:
-    config = json.load(cjson)
-with open("./config/db.json", "r") as dbjson:
-    db = json.load(dbjson)
-bot = commands.Bot(command_prefix=config["prefix"])
-client = codingame.Client()
+bot = commands.Bot(command_prefix=config.prefix,
+                   activity=discord.Game(name=config.activity_status))
+client = codingame.Client(is_async=True)
+
 
 @bot.event
 async def on_command_error(ctx, error):
-    await ctx.send(f"An error occured: {str(error)}")
+    if config.debug:
+        await ctx.send(f"An error occurred: {str(error)}")
+    raise error
+
 
 @bot.event
 async def on_ready():
-    print('Le bot est pret')
-    await bot.change_presence(activity=discord.Game(name=config["prefix"] + "help"))
+    print("Bot is ready to go")
+    print("-" * 10)
 
-@bot.command(name="unlink", description="Unlink you from your actual profil")
+# Unregister a user's codingame profile when the unlink command is used
+# It uses the databases connection to check if the user is linked to a profile
+# If not, it unlinks the user from the database
+@bot.command()
 async def unlink(ctx):
-    with open("./config/db.json", "r+") as file:
-        file_data = json.load(file)
-        try:
-            if not file_data[str(ctx.author.id)]["user"]:
-                await ctx.send("You are not linked, use !link to link your codingame profile")
-            else:
-                tmp = file_data[str(ctx.author.id)]["user"]
-                file_data[str(ctx.author.id)]["user"] = ""
-                await ctx.send("Succesfully unlinked from " + tmp)
-        except KeyError:
-            await ctx.send("You are not linked, use !link to link your codingame profile")
-        with open("./config/db.json", "w+") as fp:
-            json.dump(file_data, fp, sort_keys=True, indent=4)
+    user = ctx.message.author
+    if not db.is_linked(user.id):
+        await ctx.send("You are not linked to a codingame profile")
+        return
+    db.unlink(user.id)
+    await ctx.send(f"{user.mention}'s codingame profile has been unlinked")
 
-@bot.command(name="link", description="link you to a codingame profil")
+
+# Register a user's codingame profile when the link command is used
+# It uses the databases connection to check if the user is linked to a profile
+# If not, it links the user to the database
+@bot.command()
 async def link(ctx, arg):
-    with open("./config/db.json", "r+") as file:
-        file_data = json.load(file)
-        try:
-            if not file_data[str(ctx.author.id)]["user"]:
-                file_data[str(ctx.author.id)]["user"] = arg
-                await ctx.send("Succesfully linked to " + arg)
-            else:
-                await ctx.send("You are already linked, use !unlink to reset your link")
-        except KeyError:
-            file_data[str(ctx.author.id)] = {"user": arg}
-            await ctx.send("Succesfully linked to " + arg)
-        with open("./config/db.json", "w+") as fp:
-            json.dump(file_data, fp, sort_keys=True, indent=4)
+    user = ctx.message.author
+    if db.is_linked(user.id):
+        await ctx.send("You are already linked to a codingame profile")
+        return
+    db.link(user.id, arg)
+    await ctx.send(f"{user.mention}'s codingame profile has been linked")
 
-@bot.command(name="profil", description="See an user profil from codingame")
-async def profil(ctx, arg=None):
-    if not arg:
-        file = open("./config/db.json", "r+")
-        file_data = json.load(file)
-        if not file_data[str(ctx.author.id)]["user"]:
-            await ctx.send("This command required an argument or to be linked")
-            return(84)
-        else:
-            codingamer = client.get_codingamer(file_data[str(ctx.author.id)]["user"])
-    else:
-        codingamer = client.get_codingamer(arg)
-    embed = discord.Embed(title=codingamer.pseudo, url="https://www.codingame.com/profile/" + codingamer.public_handle, color=Color.orange())
-    embed.add_field(name="Clash Of Code Global rank:", value=str(codingamer.get_clash_of_code_rank()) + " ème", inline=True)
-    embed.add_field(name="Global Rank", value=str(codingamer.rank) + " ème", inline=True)
-    embed.add_field(name="Level:", value=str(codingamer.level), inline=False)
-    embed.set_thumbnail(url=codingamer.avatar_url)
-    await ctx.send(embed=embed)
 
-@bot.command(name="game", description="Join the actual game of  clash of code")
-async def game(ctx):
-    coc = client.get_pending_clash_of_code()
-    embed = discord.Embed(title="Click to join", url=coc.join_url, description="**Players online:**", color=Color.blue())
-    embed.set_thumbnail(url="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,f_auto,q_auto:eco,dpr_1/v1410916443/e1aka8oyy6vnsbrt8ogw.png")
-    for player in coc.players:
-        embed.add_field(name=player.pseudo, value="[See profil](https://www.codingame.com/profile/" + player.public_handle + ")")
-    embed.set_footer(text="Time before start: " + str(coc.time_before_start.seconds) + "s")
-    await ctx.send(embed=embed)
+# Get a codingame profile when the profile command is used
+# If there is an argument, it gets the user's profile id from the argument
+# Else it gets the user's profile id from the database
+@bot.command()
+async def profile(ctx, arg=None):
+    user = ctx.message.author
+    profile_id = arg
+    if arg is None:
+        if not db.is_linked(user.id):
+            await ctx.send("You are not linked to a codingame profile")
+            return
+        profile_id = db.get_codingame_id(user.id)
+    codingamer = await client.get_codingamer(profile_id)
+    # TODO: Make this work cause damn idk why it's not
+    if codingamer is None:
+        await ctx.send(f"There is no profile with id {profile_id}")
+        return
+    await ctx.send(
+        embed=discord.Embed(title=codingamer.pseudo,
+                            url="https://www.codingame.com/profile/" + codingamer.public_handle,
+                            color=Color.orange())
+            .add_field(name="Clash Of Code Global rank:",
+                       value=str(await codingamer.get_clash_of_code_rank()) + " ème",
+                       inline=True)
+            .add_field(name="Global Rank",
+                       value=str(codingamer.rank) + " ème",
+                       inline=True)
+            .add_field(name="Level:",
+                       value=str(codingamer.level),
+                       inline=False)
+            .set_thumbnail(url=codingamer.avatar_url)
+    )
 
-@bot.command(name="next", description="Join the next game of clash of code")
-async def nextgame(ctx):
-    coc = client.get_pending_clash_of_code()
-    next_battle = coc.time_before_start.seconds
-    await ctx.send("Next battle in " + str(next_battle) + "s ~")
-    while next_battle > 5:
-        coc = client.get_pending_clash_of_code()
-        next_battle = coc.time_before_start.seconds
-        await asyncio.sleep(5)
-    await asyncio.sleep(next_battle + 5)
-    await ctx.send(ctx.author.mention)
-    coc = client.get_pending_clash_of_code()
-    while not coc:
-        coc = client.get_pending_clash_of_code()
-        asyncio.sleep(1)
-    embed = discord.Embed(title="Click to join", url=coc.join_url, description="**Players online:**", color=Color.blue())
-    embed.set_thumbnail(url="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,f_auto,q_auto:eco,dpr_1/v1410916443/e1aka8oyy6vnsbrt8ogw.png")
-    for p in coc.players:
-        embed.add_field(name=p.pseudo, value="[See profil](https://www.codingame.com/profile/" + p.public_handle + ")")
-    embed.set_footer(text="Time before start: " + str(coc.time_before_start))
-    await ctx.send(embed=embed)
 
-@bot.command(name="info", description="Display info on the bot")
+@bot.command(name="info", description="Display info about the bot")
 async def info(ctx):
-    embed = discord.Embed(title="Infos", color=Color.gold())
-    embed.add_field(name="Invite me", value="[here](https://discord.com/api/oauth2/authorize?client_id=866601410237038592&permissions=8&scope=bot)")
-    embed.add_field(name="Source Code", value="[here](https://github.com/Waz0x/codingame_discord_bot)")
-    embed.set_thumbnail(url="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,f_auto,q_auto:eco,dpr_1/v1410916443/e1aka8oyy6vnsbrt8ogw.png")
-    embed.set_footer(text="Made with <3 by Waz0x", icon_url="https://cdn.discordapp.com/avatars/606758395583922176/0ab96a13c0e7998926b1ffdfa9364313.png?size=128")
-    await ctx.send(embed=embed)
+    await ctx.send(
+        embed=discord.Embed(title="Infos", color=Color.gold())
+            .add_field(name="Invite me",
+                       value="[here](" + config.invitation_link + ")")
+            .add_field(name="Source Code", value="[here](" + config.source_code_link + ")")
+            .set_thumbnail(url=config.codingame_icon_link)
+            .set_footer(text="Made with <3 by Waz0x and huntears")
+    )
 
-#@bot.command(name="leaderboard", description="get your leaderboard")
-#async def leaderboard(ctx, arg=None):
-#    if not arg:
-#        file = open("./config/db.json", "r+")
-#        file_data = json.load(file)
-#        if not file_data[str(ctx.author.id)]["user"]:
-#            await ctx.send("This command required an argument or to be linked")
-#            return(84)
-#        else:
-#            codingamer = client.get_codingamer(file_data[str(ctx.author.id)]["user"])
-#    else:
-#        codingamer = client.get_codingamer(arg)
-#    page = codingamer.rank/100
-#    place = codingamer.rank % 100
-#    global_leaderboard = client.get_global_leaderboard(page=page + 1)
-#    print(global_leaderboard.users[place].pseudo)
-#    embed=discord.Embed(title="Leaderboard", color=Color.blurple())
-#    for i in range(-2, 3):
-#        embed.add_field(name=str(codingamer.rank + i) + " ème " + str(global_leaderboard.users[place + i].pseudo), value="[See profil](https://www.codingame.com/profile/" + global_leaderboard.users[place + i].public_handle + ")", inline=False)
-#    await ctx.send(embed=embed)
 
-bot.run(config["token"])
+bot.run(config.token)
