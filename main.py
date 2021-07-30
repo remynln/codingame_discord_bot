@@ -58,11 +58,11 @@ async def profil(ctx, arg=None):
     if not arg:
         with open("./config/db.json", "r+") as file:
             file_data = json.load(file)
-            if not file_data[str(ctx.author.id)]["user"]:
-                await ctx.send("This command required an argument or to be linked")
-                return(84)
-            else:
-                codingamer = client.get_codingamer(file_data[str(ctx.author.id)]["user"])
+        if not file_data[str(ctx.author.id)]["user"]:
+            await ctx.send("This command required an argument or to be linked")
+            return(84)
+        else:
+            codingamer = client.get_codingamer(file_data[str(ctx.author.id)]["user"])
     else:
         codingamer = client.get_codingamer(arg)
     embed = discord.Embed(title=codingamer.pseudo, url="https://www.codingame.com/profile/" + codingamer.public_handle, color=Color.orange())
