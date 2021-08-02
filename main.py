@@ -23,35 +23,31 @@ async def on_ready():
 
 @bot.command(name="unlink", description="Unlink you from your actual profil")
 async def unlink(ctx):
-    with open("./config/db.json", "r+") as file:
-        file_data = json.load(file)
-        try:
-            if not file_data[str(ctx.author.id)]["user"]:
-                await ctx.send("You are not linked, use !link to link your codingame profile")
-            else:
-                tmp = file_data[str(ctx.author.id)]["user"]
-                file_data[str(ctx.author.id)]["user"] = ""
-                await ctx.send("Succesfully unlinked from " + tmp)
-        except KeyError:
+    try:
+        if not db[str(ctx.author.id)]["user"]:
             await ctx.send("You are not linked, use !link to link your codingame profile")
-        with open("./config/db.json", "w+") as fp:
-            json.dump(file_data, fp, sort_keys=True, indent=4)
+        else:
+            tmp = db[str(ctx.author.id)]["user"]
+            db[str(ctx.author.id)]["user"] = ""
+            await ctx.send("Succesfully unlinked from " + tmp)
+    except KeyError:
+        await ctx.send("You are not linked, use !link to link your codingame profile")
+    with open("./config/db.json", "w+") as fp:
+        json.dump(db, fp, sort_keys=True, indent=4)
 
 @bot.command(name="link", description="link you to a codingame profil")
 async def link(ctx, arg):
-    with open("./config/db.json", "r+") as file:
-        file_data = json.load(file)
-        try:
-            if not file_data[str(ctx.author.id)]["user"]:
-                file_data[str(ctx.author.id)]["user"] = arg
-                await ctx.send("Succesfully linked to " + arg)
-            else:
-                await ctx.send("You are already linked, use !unlink to reset your link")
-        except KeyError:
-            file_data[str(ctx.author.id)] = {"user": arg}
+    try:
+       if not db[str(ctx.author.id)]["user"]:
+            db[str(ctx.author.id)]["user"] = arg
             await ctx.send("Succesfully linked to " + arg)
-        with open("./config/db.json", "w+") as fp:
-            json.dump(file_data, fp, sort_keys=True, indent=4)
+        else:
+            await ctx.send("You are already linked, use !unlink to reset your link")
+    except KeyError:
+        db[str(ctx.author.id)] = {"user": arg}
+        await ctx.send("Succesfully linked to " + arg)
+    with open("./config/db.json", "w+") as fp:
+        json.dump(db, fp, sort_keys=True, indent=4)
 
 @bot.command(name="profil", description="See an user profil from codingame")
 async def profil(ctx, arg=None):
