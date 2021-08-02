@@ -38,7 +38,7 @@ async def unlink(ctx):
 @bot.command(name="link", description="link you to a codingame profil")
 async def link(ctx, arg):
     try:
-       if not db[str(ctx.author.id)]["user"]:
+        if not db[str(ctx.author.id)]["user"]:
             db[str(ctx.author.id)]["user"] = arg
             await ctx.send("Succesfully linked to " + arg)
         else:
