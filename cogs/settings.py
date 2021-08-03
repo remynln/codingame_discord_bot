@@ -7,7 +7,7 @@ from discord.ext import commands
 
 class Settings(commands.Cog):
     def __init__(self, bot: commands.Bot):
-        """set up your profile."""
+        """Set up your profile."""
         self.bot = bot
 
     @commands.command()
@@ -39,13 +39,14 @@ class Settings(commands.Cog):
         file_data[str(ctx.author.id)]["user"] = arg
         await loop.run_in_executor(ThreadPoolExecutor(), self.write_db, file_data)
         await ctx.send("Succesfully linked to " + arg)
-    
 
+    @staticmethod
     def read_db(self):
         with open("./config/db.json", "r+") as file:
             file_data = json.load(file)
         return file_data
 
+    @staticmethod
     def write_db(self, file_data):
         with open("./config/db.json", "w+") as fp:
             json.dump(file_data, fp, sort_keys=True, indent=4)

@@ -97,7 +97,7 @@ class Game(commands.Cog):
         embed.set_thumbnail(url=codingamer.avatar_url)
         await ctx.send(embed=embed)
 
-
+    @staticmethod
     def read_db(self):
         with open("./config/db.json", "r+") as file:
             file_data = json.load(file)

@@ -3,7 +3,7 @@ from discord.ext import commands
 
 class OnEvent(commands.Cog):
     def __init__(self, bot: commands.Bot):
-        """interact with discord event."""
+        """Interact with discord event."""
         self.bot = bot
 
     @commands.Cog.listener()
