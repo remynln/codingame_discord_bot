@@ -41,13 +41,13 @@ class Settings(commands.Cog):
         await ctx.send("Succesfully linked to " + arg)
 
     @staticmethod
-    def read_db(self):
+    def read_db():
         with open("./config/db.json", "r+") as file:
             file_data = json.load(file)
         return file_data
 
     @staticmethod
-    def write_db(self, file_data):
+    def write_db(file_data):
         with open("./config/db.json", "w+") as fp:
             json.dump(file_data, fp, sort_keys=True, indent=4)
 

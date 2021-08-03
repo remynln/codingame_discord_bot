@@ -98,7 +98,7 @@ class Game(commands.Cog):
         await ctx.send(embed=embed)
 
     @staticmethod
-    def read_db(self):
+    def read_db():
         with open("./config/db.json", "r+") as file:
             file_data = json.load(file)
         return file_data
