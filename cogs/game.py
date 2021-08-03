@@ -41,7 +41,7 @@ class Game(commands.Cog):
         while next_battle > 5:
             coc = await self.bot.codingame_client.get_pending_clash_of_code()
             next_battle = coc.time_before_start.seconds
-            msg.edit(f"Next battle in {next_battle} s ~")
+            await msg.edit(content=f"Next battle in {next_battle} s ~")
             await sleep(5)
         await sleep(next_battle + 5)
         await ctx.send(ctx.author.mention)
