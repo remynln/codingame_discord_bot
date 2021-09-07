@@ -1,6 +1,8 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8aeedd86c1dc4ddea2b9517573c8e056)](https://www.codacy.com/gh/Waz0x/codingame_discord_bot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Waz0x/codingame_discord_bot&amp;utm_campaign=Badge_Grade)
 # Discord Bot Codingame
 
+### Important: discord.py has stopped his activities so this repo is now archived
+
 ## Install
 ``git clone https://github.com/Waz0x/codingame_discord_bot.git``
 
